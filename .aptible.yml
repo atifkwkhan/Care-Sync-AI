@@ -23,10 +23,8 @@ environments:
         protocol: http
         timeout: 15
         interval: 10
-      services:
-        web:
-          ports:
-            - 8080:8080
+      expose:
+        - 8080:8080
 
 # Environment configuration
 env:

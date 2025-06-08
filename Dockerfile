@@ -50,6 +50,8 @@ exec node /app/server.js\n\
 ' > /app/start.sh \
 && chmod +x /app/start.sh
 
+# Expose the port
 EXPOSE 8080
 
+# Start the application
 CMD ["/app/start.sh"] 
