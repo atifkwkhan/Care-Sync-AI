@@ -1,6 +1,6 @@
 # CareSync AI - Modern Healthcare Management Platform
 
-![CareSync AI Logo](Logo%20Files/CareSync-Logo.svg)
+![CareSync AI Logo](Logo Files/svg/Color logo - no background.svg)
 
 ## Overview
 
