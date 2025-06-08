@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import Login from '../components/auth/Login';
 import Register from '../components/auth/Register';
 import HomePage from '../components/HomePage';
+import Dashboard from '../components/Dashboard';
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -26,7 +27,7 @@ const AppRoutes = () => {
         path="/dashboard"
         element={
           <ProtectedRoute>
-            <div>Dashboard (Protected Route)</div>
+            <Dashboard />
           </ProtectedRoute>
         }
       />
