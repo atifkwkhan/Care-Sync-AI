@@ -37,18 +37,19 @@ app.get("*", (req, res) => {\n\
 app.listen(PORT, "0.0.0.0", () => {\n\
   console.log(`Server running on port ${PORT}`);\n\
 });\n\
-' > server.js
+' > /app/server.js
 
 # Create startup script
 RUN echo '#!/bin/sh\n\
+set -e\n\
+cd /app\n\
 echo "Running database migrations..."\n\
 PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -U $DB_USER -d $DB_NAME -f /app/src/db/migrations/001_create_users_table.sql || true\n\
 echo "Starting server..."\n\
-exec node server.js\n\
-' > start.sh
-
-RUN chmod +x start.sh
+exec node /app/server.js\n\
+' > /app/start.sh \
+&& chmod +x /app/start.sh
 
 EXPOSE 8080
 
-CMD ["./start.sh"] 
+CMD ["/app/start.sh"] 

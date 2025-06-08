@@ -16,7 +16,7 @@ environments:
         DB_PASSWORD: "${DATABASE_PASSWORD}"
         DB_HOST: "${DATABASE_HOST}"
         DB_PORT: "${DATABASE_PORT}"
-      command: ./start.sh
+      command: /app/start.sh
       health_check:
         path: /health
         port: 8080
