@@ -116,8 +116,8 @@ This project is proprietary software. All rights reserved.
 ## Contact
 
 For any inquiries, please reach out to:
-- Website: [CareSync AI](https://caresync-ai.com)
-- Email: support@caresync-ai.com
+- Website: [CareSync AI](https://caresync.ai)
+- Email: https://shkhan@caresynchh.com)
 
 ## Acknowledgments
 
@@ -128,4 +128,4 @@ Special thanks to:
 
 ---
 
-© 2024 CareSync AI. All Rights Reserved.
+© 2025 CareSync AI. All Rights Reserved.
