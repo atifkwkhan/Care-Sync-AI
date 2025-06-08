@@ -42,7 +42,7 @@ RUN npm install
 # Copy application code
 COPY . .
 
-# Build the application
+# Build the React application
 RUN npm run build
 
 # Install PostgreSQL client for migrations
@@ -53,11 +53,17 @@ RUN echo '#!/bin/sh\n\
 echo "Running database migrations..."\n\
 PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -U $DB_USER -d $DB_NAME -f /app/src/db/migrations/001_create_users_table.sql\n\
 echo "Starting the application..."\n\
-npm start\n\
+exec node server.js\n\
 ' > /app/start.sh
 
 RUN chmod +x /app/start.sh
 
+# Expose the port the app runs on
 EXPOSE 3000
 
+# Health check configuration
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
+
+# Start the application
 CMD ["/app/start.sh"] 
