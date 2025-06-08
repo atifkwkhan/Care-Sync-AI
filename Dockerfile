@@ -26,4 +26,4 @@ RUN chmod +x /app/start.sh && \
 EXPOSE 8080
 
 # Start the application
-CMD ["/bin/sh", "/app/start.sh"] 
+CMD ["node", "server.js"] 

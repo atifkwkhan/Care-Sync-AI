@@ -16,7 +16,7 @@ environments:
         DB_PASSWORD: "${DATABASE_PASSWORD}"
         DB_HOST: "${DATABASE_HOST}"
         DB_PORT: "${DATABASE_PORT}"
-      command: /bin/sh /app/start.sh
+      command: ["node", "server.js"]
       health_check:
         path: /health
         port: 8080

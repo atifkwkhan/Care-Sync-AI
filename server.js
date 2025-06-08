@@ -1,8 +1,12 @@
-const express = require('express');
-const path = require('path');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const authRoutes = require('./src/api/auth');
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import authRoutes from './src/api/auth.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -28,7 +32,7 @@ app.get('*', (req, res) => {
 });
 
 // Initialize database and start server
-const { initializeDatabase } = require('./src/db');
+import { initializeDatabase } from './src/db.js';
 
 const startServer = async () => {
   try {
