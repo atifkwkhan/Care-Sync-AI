@@ -203,7 +203,7 @@ const HomePage = () => {
       <div className="text-center py-8 bg-gradient-to-r from-[#147d6c]/10 to-[#1effff]/10">
         <p className="text-sm text-gray-700">
           Created with ❤️ by{' '}
-          <span className="font-medium text-[#147d6c] hover:text-[#1effff] transition-colors">Homaira</span>
+          <span className="font-medium text-[#147d6c] hover:text-[#1effff] transition-colors">Homaira Momen</span>
           {' & '}
           <span className="font-medium text-[#147d6c] hover:text-[#1effff] transition-colors">Hossai</span>
         </p>
