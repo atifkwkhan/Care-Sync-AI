@@ -1,0 +1,25 @@
+app:
+  web:
+    command: nginx -g "daemon off;"
+    port: 80
+    dockerfile_path: Dockerfile
+    health_check_path: /
+    health_check_timeout: 5
+    health_check_interval: 10
+    health_check_protocol: http
+
+  # Environment configuration
+  env:
+    - VITE_API_URL
+    - NODE_ENV=production
+    - DB_USER
+    - DB_HOST
+    - DB_NAME
+    - DB_PASSWORD
+    - DB_PORT
+
+# Database configuration
+databases:
+  - type: postgresql
+    version: 14
+    name: caresync_db 
