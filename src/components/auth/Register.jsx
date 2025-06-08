@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { DISCIPLINE_OPTIONS, EMPLOYEE_TYPE_OPTIONS } from '../../types/User';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -8,7 +9,7 @@ const Register = () => {
     firstName: '',
     lastName: '',
     suffix: '',
-    userType: 'Staff',
+    discipline: '',
     username: '',
     password: '',
     agencyEmployeeId: '',
@@ -105,7 +106,7 @@ const Register = () => {
               />
             </div>
 
-            {/* Suffix and User Type */}
+            {/* Suffix and Discipline */}
             <div>
               <label htmlFor="suffix" className="block text-sm font-medium text-gray-700">
                 Suffix (optional)
@@ -121,19 +122,23 @@ const Register = () => {
             </div>
 
             <div>
-              <label htmlFor="userType" className="block text-sm font-medium text-gray-700">
-                User Type
+              <label htmlFor="discipline" className="block text-sm font-medium text-gray-700">
+                Discipline
               </label>
               <select
-                name="userType"
-                id="userType"
+                name="discipline"
+                id="discipline"
                 required
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#147d6c] focus:border-[#147d6c] sm:text-sm"
-                value={formData.userType}
+                value={formData.discipline}
                 onChange={handleChange}
               >
-                <option value="Staff">Staff</option>
-                <option value="Other">Other</option>
+                <option value="">Select a discipline</option>
+                {DISCIPLINE_OPTIONS.map(option => (
+                  <option key={option.id} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -228,7 +233,11 @@ const Register = () => {
                 value={formData.employeeType}
                 onChange={handleChange}
               >
-                <option value="Staff">Staff</option>
+                {EMPLOYEE_TYPE_OPTIONS.map(option => (
+                  <option key={option.id} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
