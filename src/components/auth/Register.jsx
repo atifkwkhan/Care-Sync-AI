@@ -1,7 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import { createUser } from '../../db';
 import { DISCIPLINE_OPTIONS, EMPLOYEE_TYPE_OPTIONS } from '../../types/User';
 
 const Register = () => {
@@ -50,23 +49,26 @@ const Register = () => {
     setError('');
 
     try {
-      const user = await createUser(formData);
-      
-      // Login the user after successful registration
-      login({
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        discipline: formData.discipline,
-        employeeType: formData.employeeType
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
       });
 
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
+      }
+
+      // Login the user after successful registration
+      login(data.user);
       navigate('/dashboard');
     } catch (err) {
       console.error('Registration error:', err);
-      setError('An error occurred during registration. Please try again.');
+      setError(err.message || 'An error occurred during registration. Please try again.');
     }
   };
 

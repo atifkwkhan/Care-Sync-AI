@@ -1,7 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import { findUserByUsername, validatePassword } from '../../db';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -24,36 +23,26 @@ const Login = () => {
     setError('');
 
     try {
-      const user = await findUserByUsername(formData.username);
-      
-      if (!user) {
-        setError('Invalid username or password');
-        return;
-      }
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
-      const isValid = await validatePassword(formData.password, user.password_hash);
-      
-      if (!isValid) {
-        setError('Invalid username or password');
-        return;
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Invalid username or password');
       }
 
       // Login successful
-      login({
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        discipline: user.discipline,
-        employeeType: user.employee_type,
-        permissions: user.permissions
-      });
-
+      login(data.user);
       navigate('/dashboard');
     } catch (err) {
       console.error('Login error:', err);
-      setError('An error occurred during login. Please try again.');
+      setError(err.message || 'An error occurred during login. Please try again.');
     }
   };
 
