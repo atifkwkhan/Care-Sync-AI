@@ -16,15 +16,17 @@ environments:
         DB_PASSWORD: "${DATABASE_PASSWORD}"
         DB_HOST: "${DATABASE_HOST}"
         DB_PORT: "${DATABASE_PORT}"
-      command: /app/start.sh
-      health_check:
-        path: /health
-        port: 8080
-        protocol: http
-        timeout: 15
-        interval: 10
-      expose:
-        - 8080:8080
+      services:
+        cmd:
+          command: /app/start.sh
+          ports:
+            - 8080:8080
+          health_check:
+            path: /health
+            port: 8080
+            protocol: http
+            timeout: 15
+            interval: 10
 
 # Environment configuration
 env:

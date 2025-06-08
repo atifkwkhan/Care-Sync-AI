@@ -34,8 +34,18 @@ app.get("*", (req, res) => {\n\
   res.sendFile(path.join(__dirname, "dist", "index.html"));\n\
 });\n\
 \n\
-app.listen(PORT, "0.0.0.0", () => {\n\
+// Start server\n\
+const server = app.listen(PORT, "0.0.0.0", () => {\n\
   console.log(`Server running on port ${PORT}`);\n\
+});\n\
+\n\
+// Handle shutdown gracefully\n\
+process.on("SIGTERM", () => {\n\
+  console.log("Received SIGTERM signal, shutting down gracefully");\n\
+  server.close(() => {\n\
+    console.log("Server closed");\n\
+    process.exit(0);\n\
+  });\n\
 });\n\
 ' > /app/server.js
 
@@ -54,4 +64,4 @@ exec node /app/server.js\n\
 EXPOSE 8080
 
 # Start the application
-CMD ["/app/start.sh"] 
+ENTRYPOINT ["/app/start.sh"] 
