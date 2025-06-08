@@ -6,6 +6,7 @@
 
 ## Overview
 
+
 CareSync AI is a cutting-edge healthcare management platform designed to streamline and modernize the healthcare experience. Our platform combines advanced technology with user-friendly interfaces to provide efficient, reliable, and secure healthcare management solutions.
 
 ## Features
