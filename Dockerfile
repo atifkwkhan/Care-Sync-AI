@@ -1,5 +1,4 @@
-# Build stage
-FROM node:18-alpine as builder
+FROM node:18-alpine
 
 WORKDIR /app
 
@@ -13,34 +12,43 @@ COPY . .
 # Build the React application
 RUN npm run build
 
-# Production stage
-FROM nginx:alpine
-
-# Copy built assets from builder stage
-COPY --from=builder /app/dist /app/dist
-
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
-
-# Install PostgreSQL client for migrations
+# Install PostgreSQL client
 RUN apk add --no-cache postgresql-client
 
-# Create a script to run migrations and start nginx
+# Create a simple Express server for serving the app and health checks
+RUN echo 'const express = require("express");\n\
+const path = require("path");\n\
+const app = express();\n\
+const PORT = process.env.PORT || 8080;\n\
+\n\
+// Health check endpoint\n\
+app.get("/health", (req, res) => {\n\
+  res.status(200).send("OK");\n\
+});\n\
+\n\
+// Serve static files\n\
+app.use(express.static(path.join(__dirname, "dist")));\n\
+\n\
+// Handle React routing\n\
+app.get("*", (req, res) => {\n\
+  res.sendFile(path.join(__dirname, "dist", "index.html"));\n\
+});\n\
+\n\
+app.listen(PORT, "0.0.0.0", () => {\n\
+  console.log(`Server running on port ${PORT}`);\n\
+});\n\
+' > server.js
+
+# Create startup script
 RUN echo '#!/bin/sh\n\
 echo "Running database migrations..."\n\
-PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -U $DB_USER -d $DB_NAME -f /app/src/db/migrations/001_create_users_table.sql\n\
-echo "Starting Nginx..."\n\
-nginx -g "daemon off;"\n\
-' > /start.sh
+PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -U $DB_USER -d $DB_NAME -f /app/src/db/migrations/001_create_users_table.sql || true\n\
+echo "Starting server..."\n\
+exec node server.js\n\
+' > start.sh
 
-RUN chmod +x /start.sh
+RUN chmod +x start.sh
 
-# Health check configuration
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost/health || exit 1
+EXPOSE 8080
 
-# Expose port 80
-EXPOSE 80
-
-# Start Nginx
-CMD ["/start.sh"] 
+CMD ["./start.sh"] 

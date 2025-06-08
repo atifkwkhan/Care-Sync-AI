@@ -10,22 +10,23 @@ environments:
     app:
       env:
         NODE_ENV: production
+        PORT: "8080"
         DB_NAME: "${DATABASE_URL}"
         DB_USER: "${DATABASE_USER}"
         DB_PASSWORD: "${DATABASE_PASSWORD}"
         DB_HOST: "${DATABASE_HOST}"
         DB_PORT: "${DATABASE_PORT}"
-      command: /start.sh
+      command: ./start.sh
       health_check:
         path: /health
-        port: 80
+        port: 8080
         protocol: http
-        timeout: 5
-        interval: 30
+        timeout: 15
+        interval: 10
       services:
         web:
           ports:
-            - 80:80
+            - 8080:8080
 
 # Environment configuration
 env:
