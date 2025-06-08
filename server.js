@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const authRoutes = require('./src/api/auth');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 // Middleware
 app.use(cors());
@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'healthy' });
+  res.status(200).send("OK");
 });
 
 // API routes
@@ -37,8 +37,17 @@ const startServer = async () => {
     console.log('Database initialized successfully');
 
     // Start server
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
+    const server = app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+
+    // Handle shutdown gracefully
+    process.on("SIGTERM", () => {
+      console.log("Received SIGTERM signal, shutting down gracefully");
+      server.close(() => {
+        console.log("Server closed");
+        process.exit(0);
+      });
     });
   } catch (error) {
     console.error('Failed to start server:', error);
