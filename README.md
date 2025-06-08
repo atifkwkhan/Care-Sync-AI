@@ -1,6 +1,8 @@
 # CareSync AI - Modern Healthcare Management Platform
 
-![CareSync AI Logo](Logo Files/svg/Color logo - no background.svg)
+<div align="center">
+  <img src="Logo Files/svg/Color logo - no background.svg" alt="CareSync AI Logo" width="400"/>
+</div>
 
 ## Overview
 
@@ -117,7 +119,7 @@ This project is proprietary software. All rights reserved.
 
 For any inquiries, please reach out to:
 - Website: [CareSync AI](https://caresync.ai)
-- Email: https://shkhan@caresynchh.com)
+- Email: shkhan@caresynchh.com
 
 ## Acknowledgments
 
