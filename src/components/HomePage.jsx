@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import logo from '../assets/logo.svg';
 
 const HomePage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#1effff]/10 via-white to-white">
@@ -22,15 +26,40 @@ const HomePage = () => {
               <a href="#" className="text-gray-700 hover:text-[#1effff] px-3 py-2 rounded-md font-medium transition-colors">Contact</a>
             </div>
             
-            {/* Desktop Get Started Button */}
-            <div className="hidden sm:flex sm:items-center">
-              <a
-                href="#"
-                style={{ backgroundColor: '#147d6c' }}
-                className="inline-flex items-center px-4 py-2 text-base font-medium rounded-md text-white hover:bg-[#1effff] hover:text-gray-800 transition-all duration-200 shadow-sm"
-              >
-                Get Started
-              </a>
+            {/* Desktop Auth Buttons */}
+            <div className="hidden sm:flex sm:items-center sm:space-x-4">
+              {user ? (
+                <>
+                  <button
+                    onClick={() => navigate('/dashboard')}
+                    className="text-gray-700 hover:text-[#1effff] px-3 py-2 rounded-md font-medium transition-colors"
+                  >
+                    Dashboard
+                  </button>
+                  <button
+                    onClick={logout}
+                    className="text-gray-700 hover:text-[#1effff] px-3 py-2 rounded-md font-medium transition-colors"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => navigate('/login')}
+                    className="text-gray-700 hover:text-[#1effff] px-3 py-2 rounded-md font-medium transition-colors"
+                  >
+                    Login
+                  </button>
+                  <button
+                    onClick={() => navigate('/register')}
+                    style={{ backgroundColor: '#147d6c' }}
+                    className="inline-flex items-center px-4 py-2 text-base font-medium rounded-md text-white hover:bg-[#1effff] hover:text-gray-800 transition-all duration-200 shadow-sm"
+                  >
+                    Register
+                  </button>
+                </>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -62,13 +91,40 @@ const HomePage = () => {
               <a href="#" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#1effff] hover:bg-gray-50">Services</a>
               <a href="#" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#1effff] hover:bg-gray-50">About</a>
               <a href="#" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#1effff] hover:bg-gray-50">Contact</a>
-              <a
-                href="#"
-                style={{ backgroundColor: '#147d6c' }}
-                className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-[#1effff] hover:text-gray-800 transition-all duration-200"
-              >
-                Get Started
-              </a>
+              
+              {/* Mobile Auth Buttons */}
+              {user ? (
+                <>
+                  <button
+                    onClick={() => navigate('/dashboard')}
+                    className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#1effff] hover:bg-gray-50"
+                  >
+                    Dashboard
+                  </button>
+                  <button
+                    onClick={logout}
+                    className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#1effff] hover:bg-gray-50"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => navigate('/login')}
+                    className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#1effff] hover:bg-gray-50"
+                  >
+                    Login
+                  </button>
+                  <button
+                    onClick={() => navigate('/register')}
+                    style={{ backgroundColor: '#147d6c' }}
+                    className="block w-full px-3 py-2 rounded-md text-base font-medium text-white hover:bg-[#1effff] hover:text-gray-800 transition-all duration-200"
+                  >
+                    Register
+                  </button>
+                </>
+              )}
             </div>
           </div>
         )}
