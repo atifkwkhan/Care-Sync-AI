@@ -115,12 +115,4 @@ export const findUserById = async (id) => {
     [id]
   );
   return result.rows[0];
-};
-
-if (typeof window === 'undefined') {
-  // Client-side stub
-  export const createUser = () => Promise.reject(new Error('Database operations not available on client'));
-  export const findUserByUsername = () => Promise.reject(new Error('Database operations not available on client'));
-  export const validatePassword = () => Promise.reject(new Error('Database operations not available on client'));
-  export const findUserById = () => Promise.reject(new Error('Database operations not available on client'));
-} 
+}; 
