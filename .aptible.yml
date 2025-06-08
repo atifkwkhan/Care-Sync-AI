@@ -1,22 +1,37 @@
-app:
-  web:
-    command: nginx -g "daemon off;"
-    port: 80
-    dockerfile_path: Dockerfile
-    health_check_path: /
-    health_check_timeout: 5
-    health_check_interval: 10
-    health_check_protocol: http
+environments:
+  production:
+    database:
+      name: caresync_production
+      type: postgresql
+      version: "14"
+      initial_size: 10 # GB
+      instance_class: db.t3.medium
 
-  # Environment configuration
-  env:
-    - VITE_API_URL
-    - NODE_ENV=production
-    - DB_USER
-    - DB_HOST
-    - DB_NAME
-    - DB_PASSWORD
-    - DB_PORT
+    app:
+      env:
+        NODE_ENV: production
+        DB_NAME: "${DATABASE_URL}"
+        DB_USER: "${DATABASE_USER}"
+        DB_PASSWORD: "${DATABASE_PASSWORD}"
+        DB_HOST: "${DATABASE_HOST}"
+        DB_PORT: "${DATABASE_PORT}"
+      command: npm run start
+      services:
+        web:
+          command: nginx -g "daemon off;"
+          ports:
+            - 80:80
+            - 443:443
+
+# Environment configuration
+env:
+  - VITE_API_URL
+  - NODE_ENV=production
+  - DB_USER
+  - DB_HOST
+  - DB_NAME
+  - DB_PASSWORD
+  - DB_PORT
 
 # Database configuration
 databases:

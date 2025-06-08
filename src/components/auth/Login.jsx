@@ -1,33 +1,59 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { AuthContext } from '../../context/AuthContext';
+import { findUserByUsername, validatePassword } from '../../db';
 
 const Login = () => {
-  const navigate = useNavigate();
-  const { login, error: authError } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
-    password: '',
+    password: ''
   });
   const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     try {
-      await login(formData);
+      const user = await findUserByUsername(formData.username);
+      
+      if (!user) {
+        setError('Invalid username or password');
+        return;
+      }
+
+      const isValid = await validatePassword(formData.password, user.password_hash);
+      
+      if (!isValid) {
+        setError('Invalid username or password');
+        return;
+      }
+
+      // Login successful
+      login({
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        discipline: user.discipline,
+        employeeType: user.employee_type,
+        permissions: user.permissions
+      });
+
       navigate('/dashboard');
     } catch (err) {
-      setError('Invalid username or password');
+      console.error('Login error:', err);
+      setError('An error occurred during login. Please try again.');
     }
   };
 
@@ -56,46 +82,50 @@ const Login = () => {
             </h2>
           </div>
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-            <div className="rounded-md shadow-sm -space-y-px">
-              <div>
-                <label htmlFor="username" className="sr-only">Username</label>
+            {error && (
+              <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <span className="block sm:inline">{error}</span>
+              </div>
+            )}
+            
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                Username
+              </label>
+              <div className="mt-1">
                 <input
                   id="username"
                   name="username"
                   type="text"
                   required
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-[#147d6c] focus:border-[#147d6c] focus:z-10 sm:text-sm"
-                  placeholder="Username"
                   value={formData.username}
                   onChange={handleChange}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
                 />
               </div>
-              <div>
-                <label htmlFor="password" className="sr-only">Password</label>
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
+              <div className="mt-1">
                 <input
                   id="password"
                   name="password"
                   type="password"
                   required
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-[#147d6c] focus:border-[#147d6c] focus:z-10 sm:text-sm"
-                  placeholder="Password"
                   value={formData.password}
                   onChange={handleChange}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
                 />
               </div>
             </div>
 
-            {(error || authError) && (
-              <div className="text-red-500 text-sm text-center">
-                {error || authError}
-              </div>
-            )}
-
             <div className="flex flex-col space-y-4">
               <button
                 type="submit"
-                style={{ backgroundColor: '#147d6c' }}
-                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white hover:bg-[#1effff] hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#147d6c] transition-all duration-200"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
               >
                 Sign in
               </button>

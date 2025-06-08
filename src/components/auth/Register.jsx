@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { AuthContext } from '../../context/AuthContext';
+import { createUser } from '../../db';
 import { DISCIPLINE_OPTIONS, EMPLOYEE_TYPE_OPTIONS } from '../../types/User';
 
 const Register = () => {
-  const navigate = useNavigate();
-  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -18,6 +18,10 @@ const Register = () => {
     phone2: '',
     employeeType: 'Staff'
   });
+
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -44,23 +48,25 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+      const user = await createUser(formData);
+      
+      // Login the user after successful registration
+      login({
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        discipline: formData.discipline,
+        employeeType: formData.employeeType
       });
 
-      if (!response.ok) {
-        throw new Error('Registration failed');
-      }
-
-      navigate('/login');
+      navigate('/dashboard');
     } catch (err) {
-      setError(err.message);
+      console.error('Registration error:', err);
+      setError('An error occurred during registration. Please try again.');
     }
   };
 
@@ -99,8 +105,13 @@ const Register = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              {/* Name Fields */}
+            {error && (
+              <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <span className="block sm:inline">{error}</span>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
                   First Name
@@ -110,7 +121,7 @@ const Register = () => {
                   name="firstName"
                   id="firstName"
                   required
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#147d6c] focus:border-[#147d6c] sm:text-sm"
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
                   value={formData.firstName}
                   onChange={handleChange}
                 />
@@ -125,167 +136,164 @@ const Register = () => {
                   name="lastName"
                   id="lastName"
                   required
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#147d6c] focus:border-[#147d6c] sm:text-sm"
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
                   value={formData.lastName}
                   onChange={handleChange}
                 />
               </div>
-
-              {/* Suffix and Discipline */}
-              <div>
-                <label htmlFor="suffix" className="block text-sm font-medium text-gray-700">
-                  Suffix (optional)
-                </label>
-                <input
-                  type="text"
-                  name="suffix"
-                  id="suffix"
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#147d6c] focus:border-[#147d6c] sm:text-sm"
-                  value={formData.suffix}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="discipline" className="block text-sm font-medium text-gray-700">
-                  Discipline
-                </label>
-                <select
-                  name="discipline"
-                  id="discipline"
-                  required
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#147d6c] focus:border-[#147d6c] sm:text-sm"
-                  value={formData.discipline}
-                  onChange={handleChange}
-                >
-                  <option value="">Select a discipline</option>
-                  {DISCIPLINE_OPTIONS.map(option => (
-                    <option key={option.id} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Username and Employee ID */}
-              <div>
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                  Preferred Username
-                </label>
-                <input
-                  type="text"
-                  name="username"
-                  id="username"
-                  required
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#147d6c] focus:border-[#147d6c] sm:text-sm"
-                  value={formData.username}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="agencyEmployeeId" className="block text-sm font-medium text-gray-700">
-                  Agency Employee ID
-                </label>
-                <input
-                  type="text"
-                  name="agencyEmployeeId"
-                  id="agencyEmployeeId"
-                  required
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#147d6c] focus:border-[#147d6c] sm:text-sm"
-                  value={formData.agencyEmployeeId}
-                  onChange={handleChange}
-                />
-              </div>
-
-              {/* Contact Information */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  id="email"
-                  required
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#147d6c] focus:border-[#147d6c] sm:text-sm"
-                  value={formData.email}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="phone1" className="block text-sm font-medium text-gray-700">
-                  Primary Phone
-                </label>
-                <input
-                  type="text"
-                  name="phone1"
-                  id="phone1"
-                  required
-                  placeholder="(XXX) XXX-XXXX"
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#147d6c] focus:border-[#147d6c] sm:text-sm"
-                  value={formData.phone1}
-                  onChange={handlePhoneChange}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="phone2" className="block text-sm font-medium text-gray-700">
-                  Secondary Phone (optional)
-                </label>
-                <input
-                  type="text"
-                  name="phone2"
-                  id="phone2"
-                  placeholder="(XXX) XXX-XXXX"
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#147d6c] focus:border-[#147d6c] sm:text-sm"
-                  value={formData.phone2}
-                  onChange={handlePhoneChange}
-                />
-              </div>
-
-              {/* Employee Type */}
-              <div>
-                <label htmlFor="employeeType" className="block text-sm font-medium text-gray-700">
-                  Employee Type
-                </label>
-                <select
-                  name="employeeType"
-                  id="employeeType"
-                  required
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#147d6c] focus:border-[#147d6c] sm:text-sm"
-                  value={formData.employeeType}
-                  onChange={handleChange}
-                >
-                  {EMPLOYEE_TYPE_OPTIONS.map(option => (
-                    <option key={option.id} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
             </div>
 
-            {error && (
-              <div className="text-red-500 text-sm text-center">
-                {error}
-              </div>
-            )}
+            <div>
+              <label htmlFor="suffix" className="block text-sm font-medium text-gray-700">
+                Suffix
+              </label>
+              <input
+                type="text"
+                name="suffix"
+                id="suffix"
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                value={formData.suffix}
+                onChange={handleChange}
+              />
+            </div>
 
-            <div className="flex justify-end space-x-4 mt-6">
-              <Link
-                to="/"
-                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#147d6c]"
+            <div>
+              <label htmlFor="discipline" className="block text-sm font-medium text-gray-700">
+                Discipline
+              </label>
+              <select
+                name="discipline"
+                id="discipline"
+                required
+                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm rounded-md"
+                value={formData.discipline}
+                onChange={handleChange}
               >
-                Cancel
-              </Link>
+                <option value="">Select a discipline</option>
+                {DISCIPLINE_OPTIONS.map(option => (
+                  <option key={option.id} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="employeeType" className="block text-sm font-medium text-gray-700">
+                Employee Type
+              </label>
+              <select
+                name="employeeType"
+                id="employeeType"
+                required
+                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm rounded-md"
+                value={formData.employeeType}
+                onChange={handleChange}
+              >
+                <option value="">Select employee type</option>
+                {EMPLOYEE_TYPE_OPTIONS.map(option => (
+                  <option key={option.id} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="agencyEmployeeId" className="block text-sm font-medium text-gray-700">
+                Agency Employee ID
+              </label>
+              <input
+                type="text"
+                name="agencyEmployeeId"
+                id="agencyEmployeeId"
+                required
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                value={formData.agencyEmployeeId}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                id="email"
+                required
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="phone1" className="block text-sm font-medium text-gray-700">
+                Primary Phone
+              </label>
+              <input
+                type="tel"
+                name="phone1"
+                id="phone1"
+                required
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                value={formData.phone1}
+                onChange={handlePhoneChange}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="phone2" className="block text-sm font-medium text-gray-700">
+                Secondary Phone (Optional)
+              </label>
+              <input
+                type="tel"
+                name="phone2"
+                id="phone2"
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                value={formData.phone2}
+                onChange={handlePhoneChange}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                Username
+              </label>
+              <input
+                type="text"
+                name="username"
+                id="username"
+                required
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                value={formData.username}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                id="password"
+                required
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                value={formData.password}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
               <button
                 type="submit"
-                style={{ backgroundColor: '#147d6c' }}
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-[#1effff] hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#147d6c] transition-all duration-200"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
               >
-                Create Account
+                Register
               </button>
             </div>
           </form>

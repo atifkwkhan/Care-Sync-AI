@@ -29,4 +29,35 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 
 # Start nginx
-CMD ["nginx", "-g", "daemon off;"] 
+CMD ["nginx", "-g", "daemon off;"]
+
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy application code
+COPY . .
+
+# Build the application
+RUN npm run build
+
+# Install PostgreSQL client for migrations
+RUN apk add --no-cache postgresql-client
+
+# Create a script to run migrations and start the app
+RUN echo '#!/bin/sh\n\
+echo "Running database migrations..."\n\
+PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -U $DB_USER -d $DB_NAME -f /app/src/db/migrations/001_create_users_table.sql\n\
+echo "Starting the application..."\n\
+npm start\n\
+' > /app/start.sh
+
+RUN chmod +x /app/start.sh
+
+EXPOSE 3000
+
+CMD ["/app/start.sh"] 
