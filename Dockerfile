@@ -15,53 +15,60 @@ RUN npm run build
 # Install PostgreSQL client
 RUN apk add --no-cache postgresql-client
 
-# Create a simple Express server for serving the app and health checks
-RUN echo 'const express = require("express");\n\
-const path = require("path");\n\
-const app = express();\n\
-const PORT = process.env.PORT || 8080;\n\
-\n\
-// Health check endpoint\n\
-app.get("/health", (req, res) => {\n\
-  res.status(200).send("OK");\n\
-});\n\
-\n\
-// Serve static files\n\
-app.use(express.static(path.join(__dirname, "dist")));\n\
-\n\
-// Handle React routing\n\
-app.get("*", (req, res) => {\n\
-  res.sendFile(path.join(__dirname, "dist", "index.html"));\n\
-});\n\
-\n\
-// Start server\n\
-const server = app.listen(PORT, "0.0.0.0", () => {\n\
-  console.log(`Server running on port ${PORT}`);\n\
-});\n\
-\n\
-// Handle shutdown gracefully\n\
-process.on("SIGTERM", () => {\n\
-  console.log("Received SIGTERM signal, shutting down gracefully");\n\
-  server.close(() => {\n\
-    console.log("Server closed");\n\
-    process.exit(0);\n\
-  });\n\
-});\n\
-' > /app/server.js
+# Create server.js file
+COPY <<'EOF' /app/server.js
+const express = require('express');
+const path = require('path');
+const app = express();
+const PORT = process.env.PORT || 8080;
 
-# Create startup script
-RUN echo '#!/bin/sh\n\
-set -e\n\
-cd /app\n\
-echo "Running database migrations..."\n\
-PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -U $DB_USER -d $DB_NAME -f /app/src/db/migrations/001_create_users_table.sql || true\n\
-echo "Starting server..."\n\
-exec node /app/server.js\n\
-' > /app/start.sh \
-&& chmod +x /app/start.sh
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
+// Serve static files
+app.use(express.static(path.join(__dirname, 'dist')));
+
+// Handle React routing
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
+// Start server
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+// Handle shutdown gracefully
+process.on('SIGTERM', () => {
+  console.log('Received SIGTERM signal, shutting down gracefully');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
+});
+EOF
+
+# Create start script
+COPY <<'EOF' /app/start.sh
+#!/bin/sh
+set -e
+cd /app
+
+echo "Running database migrations..."
+PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -U $DB_USER -d $DB_NAME -f /app/src/db/migrations/001_create_users_table.sql || true
+
+echo "Starting server..."
+exec node /app/server.js
+EOF
+
+# Make start script executable and ensure proper line endings
+RUN chmod +x /app/start.sh && \
+    sed -i 's/\r$//' /app/start.sh
 
 # Expose the port
 EXPOSE 8080
 
 # Start the application
-ENTRYPOINT ["/app/start.sh"] 
+CMD ["/bin/sh", "/app/start.sh"] 
