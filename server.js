@@ -32,7 +32,7 @@ app.get('*', (req, res) => {
 });
 
 // Initialize database and start server
-import { initializeDatabase } from './src/db.js';
+import { initializeDatabase } from './src/db/index.js';
 
 const startServer = async () => {
   try {

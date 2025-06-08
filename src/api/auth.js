@@ -1,6 +1,7 @@
-const express = require('express');
+import express from 'express';
+import { createUser, findUserByUsername, validatePassword } from '../db/index.js';
+
 const router = express.Router();
-const { createUser, findUserByUsername, validatePassword } = require('../db');
 
 router.post('/login', async (req, res) => {
   try {
@@ -57,4 +58,4 @@ router.post('/register', async (req, res) => {
   }
 });
 
-module.exports = router; 
+export default router; 
