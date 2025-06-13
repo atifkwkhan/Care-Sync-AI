@@ -205,7 +205,7 @@ const HomePage = () => {
           Created with ❤️ by{' '}
           <span className="font-medium text-[#147d6c] hover:text-[#1effff] transition-colors">Homaira Momen</span>
           {' & '}
-          <span className="font-medium text-[#147d6c] hover:text-[#1effff] transition-colors">Hossai</span>
+          <span className="font-medium text-[#147d6c] hover:text-[#1effff] transition-colors">Hossai Momen</span>
         </p>
       </div>
     </div>
