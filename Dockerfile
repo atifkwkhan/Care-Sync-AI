@@ -23,7 +23,7 @@ RUN chmod +x /app/start.sh && \
     sed -i 's/\r$//' /app/start.sh
 
 # Expose the port
-EXPOSE 80
+EXPOSE 8080
 
 # Start the application
 CMD ["node", "server.js"] 
