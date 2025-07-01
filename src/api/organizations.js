@@ -7,11 +7,16 @@ const router = express.Router();
 router.post('/register', async (req, res) => {
   try {
     // Validate required fields
-    const requiredFields = ['name', 'address', 'city', 'state', 'zipCode', 'phone', 'email'];
+    const requiredFields = ['name', 'address', 'city', 'state', 'zipCode', 'phone', 'email', 'password'];
     for (const field of requiredFields) {
       if (!req.body[field]) {
         return res.status(400).json({ message: `${field} is required` });
       }
+    }
+
+    // Check if password meets minimum requirements
+    if (req.body.password.length < 8) {
+      return res.status(400).json({ message: 'Password must be at least 8 characters long' });
     }
 
     // Check if organization email already exists

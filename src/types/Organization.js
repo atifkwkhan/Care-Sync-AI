@@ -8,6 +8,7 @@ export const Organization = {
   phone: 'string',
   email: 'string',
   website: 'string',
+  password: 'string',
   createdAt: 'string',
   updatedAt: 'string'
 };
@@ -20,5 +21,7 @@ export const OrganizationFormData = {
   zipCode: '',
   phone: '',
   email: '',
-  website: ''
+  website: '',
+  password: '',
+  confirmPassword: ''
 }; 

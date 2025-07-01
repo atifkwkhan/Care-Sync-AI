@@ -19,6 +19,18 @@ const OrganizationRegister = () => {
     e.preventDefault();
     setError('');
 
+    // Validate password
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return;
+    }
+
+    // Validate password confirmation
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
     try {
       const response = await fetch('/api/organizations/register', {
         method: 'POST',
@@ -198,6 +210,40 @@ const OrganizationRegister = () => {
                 id="website"
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
                 value={formData.website}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                id="password"
+                required
+                minLength="8"
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                value={formData.password}
+                onChange={handleChange}
+              />
+              <p className="mt-1 text-sm text-gray-500">
+                Password must be at least 8 characters long
+              </p>
+            </div>
+
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                name="confirmPassword"
+                id="confirmPassword"
+                required
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                value={formData.confirmPassword || ''}
                 onChange={handleChange}
               />
             </div>

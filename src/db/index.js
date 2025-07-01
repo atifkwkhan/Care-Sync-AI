@@ -137,10 +137,14 @@ export const createOrganization = async (organizationData) => {
   try {
     await client.query('BEGIN');
     
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(organizationData.password, salt);
+    
     const result = await client.query(
       `INSERT INTO organizations (
-        name, address, city, state, zip_code, phone, email, website
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
+        name, address, city, state, zip_code, phone, email, website, password_hash
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
       RETURNING id, name, email`,
       [
         organizationData.name,
@@ -150,7 +154,8 @@ export const createOrganization = async (organizationData) => {
         organizationData.zipCode,
         organizationData.phone,
         organizationData.email,
-        organizationData.website || null
+        organizationData.website || null,
+        passwordHash
       ]
     );
 

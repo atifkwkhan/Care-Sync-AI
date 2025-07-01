@@ -96,9 +96,9 @@ router.post('/organization/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    // For now, we'll use a simple password check
-    // In a real application, you'd want to hash passwords for organizations too
-    if (password !== 'admin123') { // This is a placeholder - you should implement proper password hashing
+    // Validate password using bcrypt
+    const isValid = await validatePassword(password, organization.password_hash);
+    if (!isValid) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
