@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import logo from '../assets/logo.svg';
 
@@ -49,14 +49,14 @@ const HomePage = () => {
                     onClick={() => navigate('/login')}
                     className="text-gray-700 hover:text-[#1effff] px-3 py-2 rounded-md font-medium transition-colors"
                   >
-                    Login
+                    User Login
                   </button>
                   <button
-                    onClick={() => navigate('/register')}
+                    onClick={() => navigate('/organization/login')}
                     style={{ backgroundColor: '#147d6c' }}
                     className="inline-flex items-center px-4 py-2 text-base font-medium rounded-md text-white hover:bg-[#1effff] hover:text-gray-800 transition-all duration-200 shadow-sm"
                   >
-                    Register
+                    Organization Login
                   </button>
                 </>
               )}
@@ -114,14 +114,14 @@ const HomePage = () => {
                     onClick={() => navigate('/login')}
                     className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#1effff] hover:bg-gray-50"
                   >
-                    Login
+                    User Login
                   </button>
                   <button
-                    onClick={() => navigate('/register')}
+                    onClick={() => navigate('/organization/login')}
                     style={{ backgroundColor: '#147d6c' }}
                     className="block w-full px-3 py-2 rounded-md text-base font-medium text-white hover:bg-[#1effff] hover:text-gray-800 transition-all duration-200"
                   >
-                    Register
+                    Organization Login
                   </button>
                 </>
               )}
@@ -148,20 +148,19 @@ const HomePage = () => {
           <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
             Revolutionizing home healthcare with intelligent monitoring, predictive analytics, and personalized care solutions.
           </p>
-          <div className="mt-10 flex justify-center items-center space-x-4">
-            <a
-              href="#"
-              style={{ backgroundColor: '#147d6c' }}
-              className="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white hover:bg-[#1effff] hover:text-gray-800 transition-all duration-200 shadow-sm"
+          <div className="mt-10 flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <Link
+              to="/login"
+              className="w-full sm:w-auto flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-[#147d6c] hover:bg-[#1effff] hover:text-gray-800 transition-all duration-200 shadow-sm"
             >
-              Start Free Trial
-            </a>
-            <a
-              href="#"
-              className="inline-flex items-center px-8 py-3 border-2 border-[#147d6c] text-base font-medium rounded-md text-[#147d6c] bg-white hover:border-[#1effff] hover:text-[#1effff] transition-all duration-200"
+              User Login
+            </Link>
+            <Link
+              to="/organization/login"
+              className="w-full sm:w-auto flex items-center justify-center px-8 py-3 border-2 border-[#147d6c] text-base font-medium rounded-md text-[#147d6c] bg-white hover:border-[#1effff] hover:text-[#1effff] transition-all duration-200"
             >
-              Learn More
-            </a>
+              Organization Login
+            </Link>
           </div>
         </div>
 

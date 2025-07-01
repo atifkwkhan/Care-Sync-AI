@@ -1,26 +1,31 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { DISCIPLINE_OPTIONS, EMPLOYEE_TYPE_OPTIONS } from '../../types/User';
+import { DISCIPLINE_OPTIONS, EMPLOYEE_TYPE_OPTIONS, USER_ROLE_OPTIONS, UserFormData } from '../../types/User';
 
 const Register = () => {
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    suffix: '',
-    discipline: '',
-    username: '',
-    password: '',
-    agencyEmployeeId: '',
-    email: '',
-    phone1: '',
-    phone2: '',
-    employeeType: 'Staff'
-  });
-
+  const [formData, setFormData] = useState(UserFormData);
   const [error, setError] = useState('');
+  const [validationErrors, setValidationErrors] = useState({});
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
+
+  useEffect(() => {
+    // Set organization ID from location state if available
+    if (location.state?.organizationId) {
+      setFormData(prev => ({
+        ...prev,
+        organizationId: location.state.organizationId,
+        role: 'admin' // First user of an organization is always an admin
+      }));
+    }
+  }, [location.state]);
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,6 +33,14 @@ const Register = () => {
       ...prev,
       [name]: value
     }));
+
+    // Clear validation error when user starts typing
+    if (validationErrors[name]) {
+      setValidationErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
   };
 
   const handlePhoneChange = (e) => {
@@ -47,6 +60,16 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setValidationErrors({});
+
+    // Validate email
+    if (!validateEmail(formData.email)) {
+      setValidationErrors(prev => ({
+        ...prev,
+        email: 'Please enter a valid email address'
+      }));
+      return;
+    }
 
     try {
       const response = await fetch('/api/auth/register', {
@@ -60,7 +83,8 @@ const Register = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Registration failed');
+        setError(data.message || 'Registration failed');
+        return;
       }
 
       // Login the user after successful registration
@@ -106,7 +130,7 @@ const Register = () => {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6" role="form">
             {error && (
               <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
                 <span className="block sm:inline">{error}</span>
@@ -225,10 +249,13 @@ const Register = () => {
                 name="email"
                 id="email"
                 required
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                className={`mt-1 block w-full border ${validationErrors.email ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm`}
                 value={formData.email}
                 onChange={handleChange}
               />
+              {validationErrors.email && (
+                <p className="mt-1 text-sm text-red-600">{validationErrors.email}</p>
+              )}
             </div>
 
             <div>
@@ -289,6 +316,28 @@ const Register = () => {
                 onChange={handleChange}
               />
             </div>
+
+            {!location.state?.organizationId && (
+              <div>
+                <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+                  Role
+                </label>
+                <select
+                  name="role"
+                  id="role"
+                  required
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm rounded-md"
+                  value={formData.role}
+                  onChange={handleChange}
+                >
+                  {USER_ROLE_OPTIONS.map(option => (
+                    <option key={option.id} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div>
               <button

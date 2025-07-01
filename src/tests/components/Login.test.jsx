@@ -38,16 +38,16 @@ describe('Login Component', () => {
 
   it('renders login form', () => {
     render(<Login />);
-    expect(screen.getByText('Sign in to your account')).toBeInTheDocument();
-    expect(screen.getByLabelText('Username')).toBeInTheDocument();
-    expect(screen.getByLabelText('Password')).toBeInTheDocument();
+    expect(screen.getByText('User Sign In')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Username')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument();
   });
 
   it('handles input changes', () => {
     render(<Login />);
-    const usernameInput = screen.getByLabelText('Username');
-    const passwordInput = screen.getByLabelText('Password');
+    const usernameInput = screen.getByPlaceholderText('Username');
+    const passwordInput = screen.getByPlaceholderText('Password');
 
     fireEvent.change(usernameInput, { target: { value: 'testuser' } });
     fireEvent.change(passwordInput, { target: { value: 'password123' } });
@@ -58,44 +58,56 @@ describe('Login Component', () => {
 
   it('handles successful login', async () => {
     const mockUser = { id: '1', username: 'testuser' };
-    const mockResponse = {
+    const mockFetch = vi.fn().mockResolvedValueOnce({
       ok: true,
       json: () => Promise.resolve({ user: mockUser })
-    };
-    global.fetch = vi.fn().mockResolvedValueOnce(mockResponse);
+    });
+    global.fetch = mockFetch;
 
     render(<Login />);
-    const usernameInput = screen.getByLabelText('Username');
-    const passwordInput = screen.getByLabelText('Password');
-    const submitButton = screen.getByRole('button', { name: 'Sign in' });
+    const usernameInput = screen.getByPlaceholderText('Username');
+    const passwordInput = screen.getByPlaceholderText('Password');
 
     fireEvent.change(usernameInput, { target: { value: 'testuser' } });
     fireEvent.change(passwordInput, { target: { value: 'password123' } });
-    fireEvent.click(submitButton);
+
+    const form = screen.getByRole('form');
+    fireEvent.submit(form);
 
     await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: 'testuser',
+          password: 'password123'
+        }),
+      });
       expect(mockLogin).toHaveBeenCalledWith(mockUser);
       expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
     });
   });
 
   it('handles login failure', async () => {
-    const mockResponse = {
+    const mockFetch = vi.fn().mockResolvedValueOnce({
       ok: false,
       json: () => Promise.resolve({
         message: 'Invalid username or password'
       })
-    };
-    global.fetch = vi.fn().mockResolvedValueOnce(mockResponse);
+    });
+    global.fetch = mockFetch;
 
     render(<Login />);
-    const usernameInput = screen.getByLabelText('Username');
-    const passwordInput = screen.getByLabelText('Password');
-    const submitButton = screen.getByRole('button', { name: 'Sign in' });
+    const usernameInput = screen.getByPlaceholderText('Username');
+    const passwordInput = screen.getByPlaceholderText('Password');
 
     fireEvent.change(usernameInput, { target: { value: 'testuser' } });
     fireEvent.change(passwordInput, { target: { value: 'wrongpassword' } });
-    fireEvent.click(submitButton);
+
+    const form = screen.getByRole('form');
+    fireEvent.submit(form);
 
     await waitFor(() => {
       expect(screen.getByText('Invalid username or password')).toBeInTheDocument();
@@ -103,20 +115,18 @@ describe('Login Component', () => {
   });
 
   it('handles network error', async () => {
-    // Mock fetch to throw a network error
-    global.fetch = vi.fn().mockImplementationOnce(() =>
-      Promise.reject(new Error('Network error'))
-    );
+    const mockFetch = vi.fn().mockRejectedValueOnce(new Error('Network error'));
+    global.fetch = mockFetch;
 
     render(<Login />);
     
     // Fill in the form
-    fireEvent.change(screen.getByLabelText('Username'), { target: { value: 'testuser' } });
-    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } });
+    fireEvent.change(screen.getByPlaceholderText('Username'), { target: { value: 'testuser' } });
+    fireEvent.change(screen.getByPlaceholderText('Password'), { target: { value: 'password123' } });
 
     // Submit the form
-    const submitButton = screen.getByRole('button', { name: 'Sign in' });
-    fireEvent.click(submitButton);
+    const form = screen.getByRole('form');
+    fireEvent.submit(form);
 
     // Wait for the error message to appear
     await waitFor(() => {
@@ -130,12 +140,12 @@ describe('Login Component', () => {
 
   it('validates required fields', () => {
     render(<Login />);
-    const submitButton = screen.getByRole('button', { name: 'Sign in' });
+    const form = screen.getByRole('form');
 
-    fireEvent.click(submitButton);
+    fireEvent.submit(form);
 
-    const usernameInput = screen.getByLabelText('Username');
-    const passwordInput = screen.getByLabelText('Password');
+    const usernameInput = screen.getByPlaceholderText('Username');
+    const passwordInput = screen.getByPlaceholderText('Password');
 
     expect(usernameInput).toBeRequired();
     expect(passwordInput).toBeRequired();

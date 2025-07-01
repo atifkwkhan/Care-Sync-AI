@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
-const Login = () => {
+const OrganizationLogin = () => {
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',
     password: ''
   });
   const [error, setError] = useState('');
@@ -24,7 +24,7 @@ const Login = () => {
     setError('');
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch('/api/auth/organization/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -38,8 +38,8 @@ const Login = () => {
         throw new Error(data.message || 'Login failed');
       }
 
-      login(data.user);
-      navigate('/dashboard');
+      login(data.organization);
+      navigate('/organization/dashboard');
     } catch (err) {
       console.error('Login error:', err);
       setError(err.message || 'Network error');
@@ -48,7 +48,6 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#1effff]/10 via-white to-white">
-      {/* Header with Home Link */}
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -62,20 +61,19 @@ const Login = () => {
         </div>
       </div>
 
-      {/* Login Form */}
       <div className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <div>
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-              User Sign In
+              Organization Sign In
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600">
               Or{' '}
               <Link
-                to="/register"
+                to="/register/organization"
                 className="font-medium text-[#147d6c] hover:text-[#1effff] transition-colors"
               >
-                register as a user
+                register your organization
               </Link>
             </p>
           </div>
@@ -89,17 +87,17 @@ const Login = () => {
 
             <div className="rounded-md shadow-sm -space-y-px">
               <div>
-                <label htmlFor="username" className="sr-only">
-                  Username
+                <label htmlFor="email" className="sr-only">
+                  Organization Email
                 </label>
                 <input
-                  id="username"
-                  name="username"
-                  type="text"
+                  id="email"
+                  name="email"
+                  type="email"
                   required
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-teal-500 focus:border-teal-500 focus:z-10 sm:text-sm"
-                  placeholder="Username"
-                  value={formData.username}
+                  placeholder="Organization Email"
+                  value={formData.email}
                   onChange={handleChange}
                 />
               </div>
@@ -131,10 +129,10 @@ const Login = () => {
 
             <div className="text-center">
               <Link
-                to="/organization/login"
+                to="/login"
                 className="font-medium text-[#147d6c] hover:text-[#1effff] transition-colors"
               >
-                Organization Login
+                User Login
               </Link>
             </div>
           </form>
@@ -144,4 +142,4 @@ const Login = () => {
   );
 };
 
-export default Login; 
+export default OrganizationLogin; 

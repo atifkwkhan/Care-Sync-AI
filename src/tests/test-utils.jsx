@@ -4,24 +4,21 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from '../context/AuthContext';
 import { vi } from 'vitest';
 
-// Mock the AuthContext values
-const mockAuthContext = {
-  user: null,
-  login: vi.fn(),
-  logout: vi.fn(),
-  isAuthenticated: false,
-};
+// Mock the AuthContext
+vi.mock('../context/AuthContext', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    useAuth: vi.fn()
+  };
+});
 
 // Create a custom render function that includes providers
 const customRender = (ui, { authProviderProps = {}, ...options } = {}) => {
   const AllTheProviders = ({ children }) => {
-    const authContextValue = { ...mockAuthContext, ...authProviderProps };
-    
     return (
       <BrowserRouter>
-        <AuthProvider value={authContextValue}>
           {children}
-        </AuthProvider>
       </BrowserRouter>
     );
   };
