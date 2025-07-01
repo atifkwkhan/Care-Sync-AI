@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import authRoutes from './src/api/auth.js';
+import organizationRoutes from './src/api/organizations.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,6 +23,7 @@ app.get('/health', (req, res) => {
 
 // API routes
 app.use('/api/auth', authRoutes);
+app.use('/api/organizations', organizationRoutes);
 
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, 'dist')));

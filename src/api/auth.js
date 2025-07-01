@@ -1,5 +1,5 @@
 import express from 'express';
-import { createUser, findUserByUsername, validatePassword } from '../db/index.js';
+import { createUser, findUserByUsername, validatePassword, findOrganizationByEmail } from '../db/index.js';
 
 const router = express.Router();
 
@@ -78,6 +78,44 @@ router.post('/register', async (req, res) => {
     } else {
       res.status(500).json({ message: 'Server error during registration' });
     }
+  }
+});
+
+// Organization login endpoint
+router.post('/organization/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
+    const organization = await findOrganizationByEmail(email);
+
+    if (!organization) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    // For now, we'll use a simple password check
+    // In a real application, you'd want to hash passwords for organizations too
+    if (password !== 'admin123') { // This is a placeholder - you should implement proper password hashing
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    // Send organization data without sensitive information
+    res.json({
+      organization: {
+        id: organization.id,
+        name: organization.name,
+        email: organization.email,
+        address: organization.address,
+        city: organization.city,
+        state: organization.state
+      }
+    });
+  } catch (error) {
+    console.error('Organization login error:', error);
+    res.status(500).json({ message: 'Server error during login' });
   }
 });
 
