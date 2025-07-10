@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 // Database operations should only be imported and used in server-side code
 import pg from 'pg';
 import bcrypt from 'bcryptjs';
@@ -9,21 +12,23 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 let pool;
-
-// Only initialize pool on server-side
-if (typeof window === 'undefined') {
-  const { Pool } = pg;
-  
-  if (!process.env.DATABASE_URL) {
-    throw new Error('DATABASE_URL environment variable is required');
-  }
-  
-  pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-      rejectUnauthorized: false
+function getPool() {
+  if (!pool) {
+    if (typeof window !== 'undefined') {
+      throw new Error('Database operations not available on client');
     }
-  });
+    const { Pool } = pg;
+    if (!process.env.DATABASE_URL) {
+      throw new Error('DATABASE_URL environment variable is required');
+    }
+    pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: {
+        rejectUnauthorized: false
+      }
+    });
+  }
+  return pool;
 }
 
 // Initialize database with migrations
@@ -31,22 +36,24 @@ export const initializeDatabase = async () => {
   if (typeof window !== 'undefined') {
     throw new Error('Database operations not available on client');
   }
-  
-  const client = await pool.connect();
+
+  const client = await getPool().connect();
   try {
     // Run migrations in order
     const migrations = [
+      '000_enable_uuid_extension.sql',
       '001_create_users_table.sql',
-      '002_create_organizations_table.sql'
+      '002_create_organizations_table.sql',
+      '003_add_password_hash_to_organizations.sql'
     ];
-    
+
     for (const migrationFile of migrations) {
       const migrationPath = path.join(__dirname, 'migrations', migrationFile);
       const migration = fs.readFileSync(migrationPath, 'utf8');
       await client.query(migration);
       console.log(`Migration ${migrationFile} completed successfully`);
     }
-    
+
     console.log('Database initialized successfully');
   } catch (error) {
     console.error('Error initializing database:', error);
@@ -61,7 +68,7 @@ export const createUser = async (userData) => {
   if (typeof window !== 'undefined') {
     throw new Error('Database operations not available on client');
   }
-  const client = await pool.connect();
+  const client = await getPool().connect();
   try {
     await client.query('BEGIN');
     const salt = await bcrypt.genSalt(10);
@@ -103,7 +110,7 @@ export const findUserByUsername = async (username) => {
   if (typeof window !== 'undefined') {
     throw new Error('Database operations not available on client');
   }
-  const result = await pool.query(
+  const result = await getPool().query(
     'SELECT * FROM users WHERE username = $1',
     [username]
   );
@@ -121,7 +128,7 @@ export const findUserById = async (id) => {
   if (typeof window !== 'undefined') {
     throw new Error('Database operations not available on client');
   }
-  const result = await pool.query(
+  const result = await getPool().query(
     'SELECT id, username, email, first_name, last_name, discipline, employee_type, permissions FROM users WHERE id = $1',
     [id]
   );
@@ -133,14 +140,14 @@ export const createOrganization = async (organizationData) => {
   if (typeof window !== 'undefined') {
     throw new Error('Database operations not available on client');
   }
-  const client = await pool.connect();
+  const client = await getPool().connect();
   try {
     await client.query('BEGIN');
-    
+
     // Hash the password
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(organizationData.password, salt);
-    
+
     const result = await client.query(
       `INSERT INTO organizations (
         name, address, city, state, zip_code, phone, email, website, password_hash
@@ -173,7 +180,7 @@ export const findOrganizationByEmail = async (email) => {
   if (typeof window !== 'undefined') {
     throw new Error('Database operations not available on client');
   }
-  const result = await pool.query(
+  const result = await getPool().query(
     'SELECT * FROM organizations WHERE email = $1',
     [email]
   );
@@ -184,7 +191,7 @@ export const findOrganizationById = async (id) => {
   if (typeof window !== 'undefined') {
     throw new Error('Database operations not available on client');
   }
-  const result = await pool.query(
+  const result = await getPool().query(
     'SELECT id, name, email, address, city, state, zip_code, phone, website FROM organizations WHERE id = $1',
     [id]
   );

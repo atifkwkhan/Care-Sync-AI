@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS organizations (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
     address VARCHAR(500) NOT NULL,
     city VARCHAR(255) NOT NULL,
