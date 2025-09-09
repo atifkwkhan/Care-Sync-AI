@@ -17,7 +17,8 @@ describe('HomePage Component', () => {
     useAuth.mockReturnValue({
       user: null,
       logout: vi.fn(),
-      isAuthenticated: false
+      isAuthenticated: false,
+      loading: false
     });
     vi.clearAllMocks();
   });

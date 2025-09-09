@@ -38,20 +38,22 @@ describe('Dashboard Component', () => {
     mockLogout = vi.fn();
     useAuth.mockReturnValue({
       user: mockUser,
-      logout: mockLogout
+      logout: mockLogout,
+      isAuthenticated: true,
+      loading: false
     });
     vi.clearAllMocks();
   });
 
   it('renders welcome message with user name', () => {
     render(<Dashboard />);
-    expect(screen.getByText(`Welcome, ${mockUser.firstName}`)).toBeInTheDocument();
+    expect(screen.getByText(`Welcome Back, ${mockUser.firstName}!`)).toBeInTheDocument();
   });
 
   it('displays user profile information correctly', () => {
     render(<Dashboard />);
     expect(screen.getByText(`${mockUser.firstName} ${mockUser.lastName}`)).toBeInTheDocument();
-    expect(screen.getByText(mockUser.email)).toBeInTheDocument();
+    expect(screen.getAllByText(mockUser.email)).toHaveLength(2); // One in sidebar, one in profile
     expect(screen.getByText(mockUser.discipline)).toBeInTheDocument();
     expect(screen.getByText(mockUser.employeeType)).toBeInTheDocument();
   });
@@ -86,6 +88,6 @@ describe('Dashboard Component', () => {
     });
 
     render(<Dashboard />);
-    expect(screen.getByText('Welcome, User')).toBeInTheDocument();
+    expect(screen.getByText('Welcome Back, User!')).toBeInTheDocument();
   });
 }); 

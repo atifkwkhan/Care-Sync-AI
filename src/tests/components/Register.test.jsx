@@ -31,7 +31,8 @@ describe('Register Component', () => {
     useAuth.mockReturnValue({
       login: mockLogin,
       user: null,
-      isAuthenticated: false
+      isAuthenticated: false,
+      loading: false
     });
     vi.clearAllMocks();
   });
