@@ -14,13 +14,16 @@ vi.mock('../context/AuthContext', async (importOriginal) => {
 });
 
 // Create a custom render function that includes providers
-const customRender = (ui, { authProviderProps = {}, ...options } = {}) => {
+const customRender = (ui, { authProviderProps = {}, includeRouter = true, ...options } = {}) => {
   const AllTheProviders = ({ children }) => {
-    return (
-      <BrowserRouter>
+    if (includeRouter) {
+      return (
+        <BrowserRouter>
           {children}
-      </BrowserRouter>
-    );
+        </BrowserRouter>
+      );
+    }
+    return children;
   };
 
   return render(ui, { wrapper: AllTheProviders, ...options });
