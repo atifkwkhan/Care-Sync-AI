@@ -12,6 +12,9 @@ COPY . .
 # Build the React application
 RUN npm run build
 
+# Set production environment
+ENV NODE_ENV=production
+
 # Install PostgreSQL client
 RUN apk add --no-cache postgresql-client
 
