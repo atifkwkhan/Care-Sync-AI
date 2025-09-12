@@ -69,13 +69,13 @@ Add the following to your `.env` file:
 ```env
 # Database credentials (get these from your Aptible tunnel output)
 DB_USER=aptible
-DB_PASSWORD=K95Lm_hc1GS3K7aIrliHdqlGYlYURNSH
+DB_PASSWORD=<your-creds>
 DB_HOST=localhost.aptible.in
 DB_NAME=db
 # Note: DB_PORT will be provided by the tunnel output
 
 # Complete DATABASE_URL (update the port number from tunnel output)
-# DATABASE_URL=postgresql://aptible:K95Lm_hc1GS3K7aIrliHdqlGYlYURNSH@localhost.aptible.in:55887/db
+# DATABASE_URL=postgresql://aptible:<your-creds>@localhost.aptible.in:55887/db
 ```
 
 ## Database Credentials
@@ -83,7 +83,7 @@ DB_NAME=db
 The application uses the following database credentials (these are provided by Aptible):
 
 - **Username**: `aptible`
-- **Password**: `K95Lm_hc1GS3K7aIrliHdqlGYlYURNSH`
+- **Password**: `<your-creds>`
 - **Host**: `localhost.aptible.in`
 - **Database**: `db`
 - **Port**: *Dynamic* (provided by tunnel output)
@@ -105,12 +105,12 @@ aptible db:tunnel care-sync-ai-postgresql
 
 The tunnel will output connection details like:
 ```
-Connect at postgresql://aptible:K95Lm_hc1GS3K7aIrliHdqlGYlYURNSH@localhost.aptible.in:55887/db
+Connect at postgresql://aptible:<your-creds>@localhost.aptible.in:55887/db
 Or, use the following arguments:
 * Host: localhost.aptible.in
 * Port: 55887
 * Username: aptible
-* Password: K95Lm_hc1GS3K7aIrliHdqlGYlYURNSH
+* Password: <your-creds>
 * Database: db
 ```
 
@@ -122,7 +122,7 @@ Open a new terminal window and start the backend server with the database connec
 
 ```bash
 # Replace 55887 with the actual port from your tunnel output
-DATABASE_URL="postgresql://aptible:K95Lm_hc1GS3K7aIrliHdqlGYlYURNSH@localhost.aptible.in:55887/db" node server.js
+DATABASE_URL="postgresql://aptible:<your-creds>H@localhost.aptible.in:[PORT]/db" node server.js
 ```
 
 **Alternative**: You can also set the DATABASE_URL in your `.env` file and use:
@@ -181,7 +181,7 @@ You need **3 terminal windows** running simultaneously:
 2. **Terminal 2**: Backend server
    ```bash
    # Option 1: Set DATABASE_URL directly
-   DATABASE_URL="postgresql://aptible:K95Lm_hc1GS3K7aIrliHdqlGYlYURNSH@localhost.aptible.in:[PORT]/db" node server.js
+   DATABASE_URL="postgresql://aptible:<your creds>H@localhost.aptible.in:[PORT]/db" node server.js
    
    # Option 2: Use .env file (recommended)
    node server.js
