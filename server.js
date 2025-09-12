@@ -9,6 +9,7 @@ import bodyParser from 'body-parser';
 import fs from 'fs';
 import authRoutes from './src/api/auth.js';
 import organizationRoutes from './src/api/organizations.js';
+import patientRoutes from './src/api/patients.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,6 +29,7 @@ app.get('/health', (req, res) => {
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/organizations', organizationRoutes);
+app.use('/api/patients', patientRoutes);
 
 // Serve static files from the React app (in production or when dist folder exists)
 console.log('NODE_ENV:', process.env.NODE_ENV);
